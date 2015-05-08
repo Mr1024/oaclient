@@ -1,7 +1,50 @@
 @charset "utf-8";
+body,div,h1,h2,h3,p,ul,ol,li,table,tr,td{
+	margin:0;
+	padding:0;
+}
+ul{
+	list-style: none;
+}
+header{
+	width:250px;
+	padding:15px;
+	display: -webkit-box;
+	display: box;
+}
+header .username{
+	-webkit-box-flex:1;
+	box-flex:1;
+}
+header .settingbtn{
+	width:20px;
+}
 .noticebox{
-	width:300px;
+	width:250px;
 	height:500px;
+	padding:15px;
+}
+.noticebox li{
+	border-bottom:solid 1px #D1D1D1;
+}
+.noticebox li h2{
+	font-size: 16px;
+	text-overflow: ellipsis;		  
+	overflow: hidden;
+	white-space: nowrap;
+	margin:5px 0px;
+	text-align: right;
+}
+.noticebox li aside{
+	display:-webkit-box;
+	display: box;
+	margin:5px 0;
+	font-size: 12px;
+}
+.noticebox li aside div{
+	box-flex:1;
+	-webkit-box-flex:1;
+	text-align: right;
 }
 /*滚动条样式*/
 ::-webkit-scrollbar {

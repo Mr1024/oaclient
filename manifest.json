@@ -13,7 +13,10 @@
             "19": "images/icon-16.png",
             "38": "images/icon-40.png"
         },
-        "default_title": "我的时钟",
+        "default_title": "新华网OA",
         "default_popup": "popup.html"
-    }
+    },
+    "permissions": [
+        "notifications"
+    ]
 }
