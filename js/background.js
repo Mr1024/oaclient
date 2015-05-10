@@ -20,10 +20,35 @@
          }, function(notificationId) {
 
          });
+         $.get('http://www.baidu.com', function(data) {
+
+         });
      } else if (message.type == 'getinfo') {
 
      }
  });
+ $.get('http://www.baidu.com', function(data) {
+
+ });
+ chrome.webRequest.onBeforeSendHeaders.addListener(function(details) {
+     console.log(details);
+     for (var i = 0, headerLen = details.requestHeaders.length; i < headerLen; ++i) {
+         if (details.requestHeaders[i].name == 'User-Agent') {
+             details.requestHeaders.splice(i, 1);
+             break;
+         }
+     }
+     return {
+         requestHeaders: details.requestHeaders
+     };
+ }, {
+     urls: [
+         "<all_urls>"
+     ]
+ }, [
+     "blocking",
+     "requestHeaders"
+ ]);
 
  function showNotification(txtObj, callback) {
      console.log(txtObj)

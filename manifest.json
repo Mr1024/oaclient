@@ -21,7 +21,7 @@
         "persistent": false
     },
     "permissions": [
-        "notifications", "storage", "*://localhost/*"
+        "notifications", "storage", "*://localhost/*","*://www.baidu.com/*","webRequestBlocking"
     ],
     "web_accessible_resources": [
         "images/*.png"
