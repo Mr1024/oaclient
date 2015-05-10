@@ -16,7 +16,14 @@
         "default_title": "新华网OA",
         "default_popup": "popup.html"
     },
+    "background": {
+        "page": "background.html",
+        "persistent": false
+    },
     "permissions": [
-        "notifications"
+        "notifications", "storage", "*://localhost/*"
+    ],
+    "web_accessible_resources": [
+        "images/*.png"
     ]
 }
