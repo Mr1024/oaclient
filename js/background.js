@@ -25,7 +25,6 @@ var i = 1;
 var socket = io.connect('http://localhost:8080');
 var lastId;
 var currUserObj;
-var userStatus;
 socket.on('connect', function() {
     var userObj = BGTool.storageget('user');
     if (userObj) {
@@ -47,20 +46,9 @@ socket.on('connect', function() {
     });
 });
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    userStatus = $.Deferred();
     if (message.type == 'verify') {
         currUserObj = message.data;
         login(currUserObj);
-        /*userStatus.done(function(status) {
-            console.log("1"+status);
-            sendResponse(1);
-        }).fail(function(status) {
-            if (status == 2) {
-                sendResponse(2);
-            } else {
-                sendResponse(3);
-            }
-        });*/
     } else if (message.type == 'getinfo') {
         sendResponse(currUserObj);
     } else if (message.type == 'logout') {
