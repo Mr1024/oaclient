@@ -18,10 +18,10 @@
     },
     "background": {
         "page": "background.html",
-        "persistent": false
+        "persistent": true
     },
     "permissions": [
-        "notifications", "storage", "*://localhost/*","*://www.baidu.com/*","webRequestBlocking"
+        "webRequest","notifications", "storage", "*://172.18.1.48/*","*://www.baidu.com/*","webRequestBlocking"
     ],
     "web_accessible_resources": [
         "images/*.png"
