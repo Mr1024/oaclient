@@ -35,9 +35,11 @@ socket.on('connect', function() {
             } else {
                 currUserObj = {};
             }
+            init();
         });
     } else {
         currUserObj = {};
+        init();
     }
     lastId = 1;
     socket.emit("serverstatus", lastId);
@@ -45,6 +47,11 @@ socket.on('connect', function() {
         console.log("lastId" + data);
     });
 });
+
+/*初始化*/
+function init() {
+
+}
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message.type == 'verify') {
         currUserObj = message.data;
