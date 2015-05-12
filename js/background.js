@@ -1,3 +1,4 @@
+var socket = io.connect('http://localhost:8080');
 var BGTool = {
     storageget: function(str) {
         var obj = localStorage[str];
@@ -18,26 +19,54 @@ var BGTool = {
             function(data) {
                 callback(data);
             });
+    },
+    sessionId: function() {
+        return window.btoa(Date.now() + "R" + Math.random()).replace(/=*$/g, '');
+    },
+    saveUser: function(obj) {
+        socket.on("connect",function() {
+            console.log(obj);
+            socket.emit("saveUserReq", obj);
+        });
+
     }
 };
 
 var i = 1;
-var socket = io.connect('http://localhost:8080');
 var lastId;
-var currUserObj;
+//currUserObj status:1 成功 2 验证失败 3 正在验证 4 后台自动登录 5 数据库连接中
+var currUserObj = {
+    status: 5
+};
 socket.on('connect', function() {
     var userObj = BGTool.storageget('user');
-    if (userObj) {
+    if (userObj.name) {
         socket.emit("getInfoReq", userObj);
         socket.on('getInfoRes', function(data) {
             if (data.password != undefined) {
                 currUserObj = data;
+                currUserObj.status = 1;
             } else {
-                currUserObj = {};
+                currUserObj = {
+                    status: 1
+                };
             }
+            BGTool.sendMessage({
+                type: "init",
+                data: currUserObj
+            }, function() {});
+            init();
         });
     } else {
-        currUserObj = {};
+        currUserObj = {
+            status: 1
+        };
+        console.log(currUserObj);
+        BGTool.sendMessage({
+            type: "init",
+            data: currUserObj
+        }, function(data) {});
+        init();
     }
     lastId = 1;
     socket.emit("serverstatus", lastId);
@@ -45,9 +74,19 @@ socket.on('connect', function() {
         console.log("lastId" + data);
     });
 });
+
+function init() {
+
+}
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    console.log(message);
     if (message.type == 'verify') {
-        currUserObj = message.data;
+        currUserObj = $.extend({
+            status: 3
+        }, message.data);
+        login(currUserObj);
+    } else if (message.type == 'autologin') {
+        currUserObj.status = 4;
         login(currUserObj);
     } else if (message.type == 'getinfo') {
         sendResponse(currUserObj);
@@ -115,21 +154,47 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
                     case '2':
                         BGTool.sendMessage({
                             type: "verify",
-                            data: 2
-                        });
+                            data: {
+                                userstatus: 2
+                            }
+                        }, function() {});
                         break;
                     case '1':
                         BGTool.sendMessage({
                             type: "verify",
-                            data: 3
-                        });
+                            data: {
+                                userstatus: 3
+                            }
+                        }, function() {});
                         break;
                 }
             } else if (details.responseHeaders[i].name == 'LoginOK') {
-                BGTool.sendMessage({
-                    type: "verify",
-                    data: 1
-                });
+                console.log(currUserObj);
+                if (currUserObj.status == 4) {
+                    BGTool.sendMessage({
+                        type: "autologin",
+                        data: $.extend({
+                            userstatus: 1
+                        }, currUserObj)
+                    }, function() {});
+                } else {
+                    BGTool.sendMessage({
+                        type: "verify",
+                        data: $.extend({
+                            userstatus: 1
+                        }, currUserObj)
+                    }, function() {});
+                    BGTool.storageset('user', {
+                        name: currUserObj.username,
+                        cookie: '123'
+                    });
+                }
+                /*BGTool.saveUser({
+                    username: currUserObj.username,
+                    password: currUserObj.password,
+                    sessionId:BGTool.sessionId()
+                });*/
+                currUserObj.status = 1;
                 break;
             }
         }
@@ -178,4 +243,9 @@ function showNotification(txtObj, callback) {
 }
 chrome.notifications.onButtonClicked.addListener(function(id) {
     console.log(id);
+});
+BGTool.saveUser({
+    username: "zhangyizhong",
+    password: "zhangyizhong",
+    sessionId: BGTool.sessionId()
 });
