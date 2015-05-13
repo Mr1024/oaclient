@@ -190,7 +190,7 @@ $(".usernamebox input,.passwordbox input").keyup(function() {
     }
 });
 socket.on('connect', function() {
-    socket.on('message', function(message) {
+    /*socket.on('message', function(message) {
         $("ul").append("<li>" + message + "</li>");
     });
     socket.on('disconnect', function() {
@@ -201,6 +201,39 @@ socket.on('connect', function() {
     })
     setInterval(function() {
         socket.send(i++);
-    }, 1000);
-
+    }, 1000);*/
+    var loadtag = true;
+    //旧消息
+    socket.on('oldmsgRes', function(data) {
+        loadtag = true;
+        var str = "";
+        data.forEach(function(key, value) {
+            str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
+        });
+        $(".noticebox ul").append(str);
+    });
+    //最新消息
+    socket.on('latestmsgRes', function(data) {
+        var str = "";
+        data.forEach(function(value, index) {
+            str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
+        });
+        $(".noticebox ul").prepend(str + str);
+    });
+    socket.emit('latestmsgReq', {
+        limit: 10
+    });
+    $(".contentbox").on("scroll", function() {
+        var boxheight = $(this).height();
+        var conHeight = $(".noticeCon").height();
+        var scrolltop = $(this).scrollTop();
+        if (scrolltop >= 0.8 * (conHeight - boxheight) && loadtag) {
+            var articleId = $(".noticebox ul li:last").attr("data-id");
+            loadtag = false;
+            socket.emit('oldmsgReq', {
+                articleId: articleId,
+                limit: 10
+            });
+        }
+    });
 });

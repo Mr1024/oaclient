@@ -9,10 +9,19 @@ var BGTool = {
         }
     },
     storageset: function(key, value) {
-        if (typeof value == "object") {
-            value = JSON.stringify(value);
+        if (typeof value == "string") {
+            valueobj = JSON.parse(value);
+        } else {
+            valueobj = value;
         }
-        localStorage[key] = value;
+        var oldobj = localStorage[key];
+
+        if (oldobj) {
+            oldobj = JSON.parse(oldobj);
+            valueobj = $.extend({}, oldobj, valueobj);
+        }
+        console.log(valueobj);
+        localStorage[key] = JSON.stringify(valueobj);
     },
     sendMessage: function(data, callback) {
         chrome.runtime.sendMessage(data,
@@ -20,14 +29,11 @@ var BGTool = {
                 callback(data);
             });
     },
-    sessionId: function() {
-        return window.btoa(Date.now() + "R" + Math.random()).replace(/=*$/g, '');
-    },
     saveUser: function(obj) {
-        socket.on("connect",function() {
-            console.log(obj);
-            socket.emit("saveUserReq", obj);
-        });
+        //socket.on("connect", function() {
+        console.log(obj);
+        socket.emit("saveUserReq", obj);
+        //});
 
     }
 };
@@ -40,7 +46,7 @@ var currUserObj = {
 };
 socket.on('connect', function() {
     var userObj = BGTool.storageget('user');
-    if (userObj.name) {
+    if (userObj.username) {
         socket.emit("getInfoReq", userObj);
         socket.on('getInfoRes', function(data) {
             if (data.password != undefined) {
@@ -72,6 +78,9 @@ socket.on('connect', function() {
     socket.emit("serverstatus", lastId);
     socket.on("clientstatus", function(data) {
         console.log("lastId" + data);
+    });
+    socket.on("saveUserRes", function(data) {
+        BGTool.storageset('user', data);
     });
 });
 
@@ -184,16 +193,12 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
                             userstatus: 1
                         }, currUserObj)
                     }, function() {});
-                    BGTool.storageset('user', {
-                        name: currUserObj.username,
-                        cookie: '123'
+                    BGTool.saveUser({
+                        username: currUserObj.username,
+                        password: currUserObj.password
                     });
+                    console.log("saveurser");
                 }
-                /*BGTool.saveUser({
-                    username: currUserObj.username,
-                    password: currUserObj.password,
-                    sessionId:BGTool.sessionId()
-                });*/
                 currUserObj.status = 1;
                 break;
             }
@@ -211,8 +216,8 @@ function login(userObj) {
     $.post('http://172.18.1.48/seeyon/login/proxy', {
             "UserAgentFrom": "pc",
             "login.timezone": "",
-            "login.username": "zhangyizhong",
-            "login.password": "zhangyizhong",
+            "login.username": userObj.username,
+            "login.password": userObj.password,
             "authorization": "",
             "dogSessionId": ""
         },
@@ -244,8 +249,8 @@ function showNotification(txtObj, callback) {
 chrome.notifications.onButtonClicked.addListener(function(id) {
     console.log(id);
 });
-BGTool.saveUser({
+/*BGTool.saveUser({
     username: "zhangyizhong",
     password: "zhangyizhong",
     sessionId: BGTool.sessionId()
-});
+});*/
