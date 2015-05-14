@@ -56,6 +56,7 @@ socket.on('connect', function() {
                     status: 1
                 };
             }
+<<<<<<< HEAD
             BGTool.sendMessage({
                 type: "init",
                 data: currUserObj
@@ -71,6 +72,12 @@ socket.on('connect', function() {
             type: "init",
             data: currUserObj
         }, function(data) {});
+=======
+            init();
+        });
+    } else {
+        currUserObj = {};
+>>>>>>> 66c9c61b55faa43399fa7fb528fe57f878065ad8
         init();
     }
     socket.on("saveUserRes", function(data) {
@@ -123,6 +130,10 @@ socket.on('connect', function() {
     }, 1000 * 60 * 2);
 });
 
+<<<<<<< HEAD
+=======
+/*初始化*/
+>>>>>>> 66c9c61b55faa43399fa7fb528fe57f878065ad8
 function init() {
 
 }
