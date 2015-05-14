@@ -95,9 +95,11 @@ OATool.onMessage(function(message, sender, sendResponse) {
         });
         $(".noticebox ul").prepend(str);
     } else if (message.type == "oldmsg") {
-        loadtag = true;
+        if (message.data.length == 10) {
+            loadtag = true;
+        }
         var str = "";
-        message.data.forEach(function(key, value) {
+        message.data.forEach(function(value, index) {
             str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
         });
         $(".noticebox ul").append(str);
@@ -106,7 +108,10 @@ OATool.onMessage(function(message, sender, sendResponse) {
 OATool.sendMessage({
     type: "latestmsg"
 }, function() {});
-chrome.browserAction.setBadgeText({text:''});
+chrome.browserAction.setBadgeText({
+    text: ''
+});
+
 function init() {}
 var i = 1;
 var socket = io.connect('http://localhost:8080');

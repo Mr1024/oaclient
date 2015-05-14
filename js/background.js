@@ -24,6 +24,7 @@ var BGTool = {
         localStorage[key] = JSON.stringify(valueobj);
     },
     sendMessage: function(data, callback) {
+        callback=callback||function(){};
         chrome.runtime.sendMessage(data,
             function(data) {
                 callback(data);
@@ -76,6 +77,7 @@ socket.on('connect', function() {
         BGTool.storageset('user', data);
     });
     socket.on('latestmsgRes', function(data) {
+        console.log(data);
         if (data.length > 0) {
             BGTool.storageset('user', {
                 lastmsgId: data[0].articleId
@@ -83,6 +85,18 @@ socket.on('connect', function() {
         }
         BGTool.sendMessage({
             type: 'latestmsg',
+            data: data
+        }, function() {});
+    });
+    socket.on('oldmsgRes', function(data) {
+        console.log(data);
+        if (data.length > 0) {
+            BGTool.storageset('user', {
+                lastmsgId: data[0].articleId
+            });
+        }
+        BGTool.sendMessage({
+            type: 'oldmsg',
             data: data
         }, function() {});
     });
