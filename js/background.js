@@ -38,8 +38,6 @@ var BGTool = {
     }
 };
 
-var i = 1;
-var lastId;
 //currUserObj status:1 成功 2 验证失败 3 正在验证 4 后台自动登录 5 数据库连接中
 var currUserObj = {
     status: 5
@@ -74,14 +72,41 @@ socket.on('connect', function() {
         }, function(data) {});
         init();
     }
-    lastId = 1;
-    socket.emit("serverstatus", lastId);
-    socket.on("clientstatus", function(data) {
-        console.log("lastId" + data);
-    });
     socket.on("saveUserRes", function(data) {
         BGTool.storageset('user', data);
     });
+    socket.on('latestmsgRes', function(data) {
+        if (data.length > 0) {
+            BGTool.storageset('user', {
+                lastmsgId: data[0].articleId
+            });
+        }
+        BGTool.sendMessage({
+            type: 'latestmsg',
+            data: data
+        }, function() {});
+    });
+    socket.on('unreadmsgRes', function(data) {
+        if (data.data.length > 0) {
+            if (data.type == "tip") {
+                chrome.browserAction.setBadgeText({
+                    text: data.data.length
+                });
+            } else {
+                data.data.forEach(function(value, index) {
+                    showNotification(value);
+                });
+            }
+        }
+
+    });
+    setInterval(function() {
+        var userinfo = BGTool.storageget('user');
+        console.log(userinfo);
+        if (typeof userinfo.lastmsgId != "undefined") {
+            socket.emit("unreadmsgReq", userinfo.lastmsgId);
+        }
+    }, 1000 * 60 * 2);
 });
 
 function init() {
@@ -103,6 +128,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         currUserObj = {};
         localStorage.removeItem('user');
         sendResponse("ok");
+    } else if (message.type == 'latestmsg') {
+        socket.emit('latestmsgReq', {
+            limit: 10,
+            lastmsgId: BGTool.storageget('user').lastmsgId
+        });
+    } else if (message.type == 'oldmsg') {
+        socket.emit('oldmsgReq', message.data);
     } else {
         sendResponse("ok");
         showNotification({
@@ -227,16 +259,17 @@ function login(userObj) {
 }
 
 function showNotification(txtObj, callback) {
-    console.log(txtObj)
+    console.log(txtObj);
+    callback = callback || function() {};
     if (txtObj.priority == 'undefined') {
         txtObj.priority = 0;
     }
     chrome.notifications.create({
         type: "basic",
         title: txtObj.type,
-        message: txtObj.text,
+        message: txtObj.title,
         iconUrl: "images/icon-128.png",
-        contextMessage: txtObj.asidetxt,
+        contextMessage: txtObj.pubtime + '   ' + txtObj.sender,
         buttons: [{
             title: "查看"
         }],
@@ -246,6 +279,7 @@ function showNotification(txtObj, callback) {
         callback(notificationId);
     });
 }
+
 chrome.notifications.onButtonClicked.addListener(function(id) {
     console.log(id);
 });

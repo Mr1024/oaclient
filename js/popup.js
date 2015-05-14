@@ -21,6 +21,7 @@ var OATool = {
         });
     },
     sendMessage: function(data, callback) {
+        callback = callback || function() {};
         chrome.runtime.sendMessage(data,
             function(data) {
                 callback(data);
@@ -33,6 +34,7 @@ var OATool = {
     }
 }
 var userObj = {};
+var loadtag = true;
 OATool.sendMessage({
     type: "getinfo"
 }, function(data) {
@@ -86,9 +88,25 @@ OATool.onMessage(function(message, sender, sendResponse) {
         OATool.showTip("登录成功");
         window.open('http://172.18.1.48/seeyon/main.do?method=index');
         OATool.closeTip(2000);
+    } else if (message.type == "latestmsg") {
+        var str = "";
+        message.data.forEach(function(value, index) {
+            str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
+        });
+        $(".noticebox ul").prepend(str);
+    } else if (message.type == "oldmsg") {
+        loadtag = true;
+        var str = "";
+        message.data.forEach(function(key, value) {
+            str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
+        });
+        $(".noticebox ul").append(str);
     }
 });
-
+OATool.sendMessage({
+    type: "latestmsg"
+}, function() {});
+chrome.browserAction.setBadgeText({text:''});
 function init() {}
 var i = 1;
 var socket = io.connect('http://localhost:8080');
@@ -189,6 +207,22 @@ $(".usernamebox input,.passwordbox input").keyup(function() {
         $(this).css("border-color", "#D1D1D1");
     }
 });
+$(".contentbox").on("scroll", function() {
+    var boxheight = $(this).height();
+    var conHeight = $(".noticeCon").height();
+    var scrolltop = $(this).scrollTop();
+    if (scrolltop >= 0.8 * (conHeight - boxheight) && loadtag) {
+        var articleId = $(".noticebox ul li:last").attr("data-id");
+        loadtag = false;
+        OATool.sendMessage({
+            type: "oldmsg",
+            data: {
+                articleId: articleId,
+                limit: 10
+            }
+        });
+    }
+});
 socket.on('connect', function() {
     /*socket.on('message', function(message) {
         $("ul").append("<li>" + message + "</li>");
@@ -204,26 +238,32 @@ socket.on('connect', function() {
     }, 1000);*/
     var loadtag = true;
     //旧消息
-    socket.on('oldmsgRes', function(data) {
+    /*socket.on('oldmsgRes', function(data) {
         loadtag = true;
         var str = "";
         data.forEach(function(key, value) {
             str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
         });
         $(".noticebox ul").append(str);
-    });
+    });*/
     //最新消息
-    socket.on('latestmsgRes', function(data) {
+    /*socket.on('latestmsgRes', function(data) {
         var str = "";
         data.forEach(function(value, index) {
+            if (index == 1) {
+                OATool.storageset('user', {
+                    lastmsgId: value.articleId
+                });
+            }
             str += '<li data-id="' + value.articleId + '"><h2 title="' + value.title + '">' + value.title + '</h2><aside><div>' + value.type + '</div><div>' + value.pubtime + '</div><div>' + value.sender + '</div></aside></li>'
         });
-        $(".noticebox ul").prepend(str + str);
-    });
-    socket.emit('latestmsgReq', {
-        limit: 10
-    });
-    $(".contentbox").on("scroll", function() {
+        $(".noticebox ul").prepend(str);
+    });*/
+    /*socket.emit('latestmsgReq', {
+        limit: 10,
+        lastmsgId: OATool.storageget('user').lastmsgId
+    });*/
+    /*$(".contentbox").on("scroll", function() {
         var boxheight = $(this).height();
         var conHeight = $(".noticeCon").height();
         var scrolltop = $(this).scrollTop();
@@ -235,5 +275,5 @@ socket.on('connect', function() {
                 limit: 10
             });
         }
-    });
+    });*/
 });
