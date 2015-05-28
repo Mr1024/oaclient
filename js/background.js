@@ -24,7 +24,7 @@ var BGTool = {
         localStorage[key] = JSON.stringify(valueobj);
     },
     sendMessage: function(data, callback) {
-        callback=callback||function(){};
+        callback = callback || function() {};
         chrome.runtime.sendMessage(data,
             function(data) {
                 callback(data);
@@ -43,6 +43,7 @@ var BGTool = {
 var currUserObj = {
     status: 5
 };
+
 socket.on('connect', function() {
     var userObj = BGTool.storageget('user');
     if (userObj.username) {
@@ -101,15 +102,13 @@ socket.on('connect', function() {
         }, function() {});
     });
     socket.on('unreadmsgRes', function(data) {
-        if (data.data.length > 0) {
+        if (data.data) {
             if (data.type == "tip") {
                 chrome.browserAction.setBadgeText({
                     text: data.data.length
                 });
             } else {
-                data.data.forEach(function(value, index) {
-                    showNotification(value);
-                });
+                showNotification(data.data);
             }
         }
 
@@ -136,7 +135,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         login(currUserObj);
     } else if (message.type == 'autologin') {
         currUserObj.status = 4;
-        login(currUserObj);
+        checkIslogin(function(status) {
+            if (status) {
+                chrome.tabs.create({
+                    url: 'http://172.18.1.48/seeyon/main.do?method=index',
+                    active: true,
+                    pinned: false
+                }, function(tab) {});
+            } else {
+                login(currUserObj);
+            }
+        });
     } else if (message.type == 'getinfo') {
         sendResponse(currUserObj);
     } else if (message.type == 'logout') {
@@ -271,6 +280,16 @@ function login(userObj) {
         function(data) {
 
         });
+}
+
+function checkIslogin(callback) {
+    $.get('http://172.18.1.48/seeyon/getAJAXMessageServlet', function(data) {
+        if (data.search("[LOGWARN]") < 0) {
+            callback(true);
+        } else {
+            callback(false);
+        }
+    });
 }
 
 function showNotification(txtObj, callback) {

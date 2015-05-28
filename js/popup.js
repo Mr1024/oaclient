@@ -86,7 +86,11 @@ OATool.onMessage(function(message, sender, sendResponse) {
         init();
     } else if (message.type == "autologin") {
         OATool.showTip("登录成功");
-        window.open('http://172.18.1.48/seeyon/main.do?method=index');
+        chrome.tabs.create({
+            url: 'http://172.18.1.48/seeyon/main.do?method=index',
+            active: true,
+            pinned: false
+        }, function(tab) {});
         OATool.closeTip(2000);
     } else if (message.type == "latestmsg") {
         var str = "";
@@ -228,6 +232,59 @@ $(".contentbox").on("scroll", function() {
         });
     }
 });
+$(".noticebox").on("click", "h2", function(e) {
+    var $that = $(e.target);
+    var id = $that.parent("li").attr("data-id");
+    var url = 'http://172.18.24.64:8080/file/' + id;
+    chrome.tabs.create({
+        url: url,
+        active: true,
+        pinned: false
+    }, function(tab) {});
+});
+
+function ajax(setting) {
+    var setting = $.extend({
+        async: true,
+        data: {},
+        dataType: "json",
+        type: "GET",
+        success: function() {},
+        error: function() {}
+    }, setting);
+    var xhr = new XMLHttpRequest();
+    if ((setting.dataType).toLowerCase() == "arraybuffer" || (setting.dataType).toLowerCase() == "blob") {
+        xhr.responseType = 'arraybuffer';
+        //xhr.responseType = setting.dataType;
+    }
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+                if ((setting.dataType).toLowerCase() == "arraybuffer" || (setting.dataType).toLowerCase() == "blob") {
+                    setting.success(xhr.response);
+                } else {
+                    setting.success(JSON.parse(xhr.responseText));
+                }
+
+            } else {
+                setting.error(xhr.status);
+            }
+        }
+    };
+    xhr.responseType = 'blob';
+    if ((setting.type).toLowerCase() == "get") {
+        setting.url = setting.url + "?" + $.param(setting.data);
+        xhr.open(setting.type, setting.url, setting.async);
+        xhr.send(null);
+    } else if ((setting.type).toLowerCase() == "post") {
+        xhr.open(setting.type, setting.url, setting.async);
+        xhr.send($.param(setting.data));
+    } else {
+        xhr.open(setting.type, setting.url, setting.async);
+        xhr.send(null);
+    }
+
+}
 socket.on('connect', function() {
     /*socket.on('message', function(message) {
         $("ul").append("<li>" + message + "</li>");
