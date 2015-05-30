@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf8">
+    <title>websocket</title>
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="contentbox">
+        <div class="noticeCon">
+            <div class="msgremindbox"></div>
+            <header>
+                <div class="username">未登录</div>
+                <div class="powerbtn" title="自动登录"><i class="fa fa-power-off"></i></div>
+                <div class="settingbtn" title="配置"><i class="fa fa-cog"></i></div>
+                <div class="signoutbtn" title="退出"><i class="fa fa-sign-out"></i></div>
+            </header>
+            <div class="noticebox">
+                <ul>
+                    <!-- <li>
+                    <h2 title="关于胡鑫同志任前公示的公告">关于胡鑫同志任前公示的公告</h2>
+                    <aside>
+                        <div>公告</div>
+                        <div>2015-05-08 16:18</div>
+                        <div>彭谆</div>
+                    </aside>
+                </li>
+                <li>
+                    <h2 title="关于胡鑫同志任前公示的公告">关于胡鑫同志任前公示的公告</h2>
+                    <aside>
+                        <div>公告</div>
+                        <div>2015-05-08 16:18</div>
+                        <div>彭谆</div>
+                    </aside>
+                </li>
+                <li>
+                    <h2 title="关于胡鑫同志任前公示的公告">关于胡鑫同志任前公示的公告</h2>
+                    <aside>
+                        <div>公告</div>
+                        <div>2015-05-08 16:18</div>
+                        <div>彭谆</div>
+                    </aside>
+                </li> -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="loginbox">
+        <h2>新华网OA</h2>
+        <div class="usernamebox"><i class="fa fa-user"></i>
+            <input type="text">
+        </div>
+        <div class="passwordbox"><i class="fa fa-unlock"></i>
+            <input type="password">
+        </div>
+        <div class="comandbox">
+            <button class="sigininbtn">登录</button>
+            <button class="canclebtn">取消</button>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/socket.io.js"></script>
+    <script type="text/javascript" src="js/popup.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,184 @@
+@charset "utf-8";
+body,
+div,
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+li,
+table,
+tr,
+td {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft YaHei";
+}
+.contentbox{
+	height:600px;
+	width:280px;
+	overflow: auto;
+}
+ul {
+    list-style: none;
+}
+.msgremindbox{
+	font-size:12px;
+	background-color:#f8ba58;
+    padding: 5px 15px;
+    display: none;
+}
+header {
+    padding: 15px;
+    display: -webkit-box;
+    display: box;
+}
+
+header .username {
+    -webkit-box-flex: 1;
+    box-flex: 1;
+    font-size:25px;
+    text-overflow: ellipsis;		  
+	overflow: hidden;
+	white-space: nowrap;
+}
+header .powerbtn{
+	width: 25px;
+    font-size:25px;
+    color:red;
+    cursor: pointer;
+    position: relative;
+}
+header .settingbtn {
+    width: 25px;
+    color:#7b7a7a;
+    font-size:25px;
+    cursor: pointer;
+}
+header .signoutbtn{
+	width: 25px;
+	color:#7b7a7a;
+    font-size:25px;
+    cursor: pointer;
+}
+.noticebox {
+    padding: 15px;
+}
+
+.noticebox li {
+    border-bottom: solid 1px #D1D1D1;
+}
+.noticebox li h2 {
+    font-size: 16px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 5px 0px;
+    text-align: right;
+}
+
+.noticebox li aside {
+    display: -webkit-box;
+    display: box;
+    margin: 5px 0;
+    font-size: 12px;
+}
+
+.noticebox li aside div {
+    box-flex: 1;
+    -webkit-box-flex: 1;
+    text-align: right;
+}
+
+.loginbox {
+    position: fixed;
+    font-size: 16px;
+    top: 600px;
+    left: 0;
+    width: 240px;
+    height: 600px;
+    padding: 0 20px;
+    background-color: #fff;
+    opacity: 0;
+    transition:all 0.5s ease;
+    -webkit-transition:all 0.5s ease;
+}
+
+.loginbox h2 {
+    margin-top: 100px;
+    text-align: center;
+}
+
+.usernamebox {
+	margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+.usernamebox input,
+.passwordbox input {
+	padding:0 10px;
+    height: 30px;
+    vertical-align: middle;
+    border-radius: 5px;
+    outline: none;
+    border: solid 1px #D1D1D1;
+}
+
+.usernamebox i,
+.passwordbox i {
+    width: 30px;
+    font-size: 40px;
+    vertical-align: middle;
+    margin: 0 10px 0 0;
+}
+
+.passwordbox {}
+.comandbox{
+	margin-top:50px;
+	text-align: center;
+}
+.comandbox button {
+	width:60px;
+}
+.comandbox button:first-child{
+	margin-right:20px;
+}
+/*滚动条样式*/
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: #fff
+}
+
+::-webkit-scrollbar-track {
+    background-color: #fff;
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px transparent
+}
+
+::-webkit-scrollbar-track:hover {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .4);
+    background-color: #fefefe
+}
+
+::-webkit-scrollbar-track:active {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .4);
+    background-color: #f0f0f0
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .05);
+    border-radius: 10px;
+    -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1)
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, .4);
+    -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1)
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: rgba(0, 0, 0, .6)
+}
