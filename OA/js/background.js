@@ -42,7 +42,6 @@ var BGTool = {
 var currUserObj = {
     status: 5
 };
-
 socket.on('connect', function() {
     var userObj = BGTool.storageget('user');
     if (userObj.username) {
@@ -87,11 +86,11 @@ socket.on('connect', function() {
         }, function() {});
     });
     socket.on('oldmsgRes', function(data) {
-        if (data.length > 0) {
+        /*if (data.length > 0) {
             BGTool.storageset('user', {
                 lastmsgId: data[0].articleId
             });
-        }
+        }*/
         BGTool.sendMessage({
             type: 'oldmsg',
             data: data
@@ -100,9 +99,11 @@ socket.on('connect', function() {
     socket.on('unreadmsgRes', function(data) {
         if (data.data) {
             if (data.type == "tip") {
-                chrome.browserAction.setBadgeText({
-                    text: data.data.length
-                });
+                var txtsize = data.data.length;
+                if (txtsize > 0)
+                    chrome.browserAction.setBadgeText({
+                        text: '' + txtsize
+                    });
             } else {
                 showNotification(data.data);
             }
@@ -112,7 +113,20 @@ socket.on('connect', function() {
     setInterval(function() {
         var userinfo = BGTool.storageget('user');
         if (typeof userinfo.lastmsgId != "undefined") {
-            socket.emit("unreadmsgReq", userinfo.lastmsgId);
+            checkIslogin(function() {
+                getUsername(function(isGet, uname) {
+                    if (isGet) {
+                        socket.emit("unreadmsgReq", {
+                            username: uname,
+                            lastmsgId: userinfo.lastmsgId
+                        });
+                    } else {
+                        socket.emit("unreadmsgReq", {
+                            lastmsgId: userinfo.lastmsgId
+                        });
+                    }
+                });
+            });
         }
     }, 1000 * 60 * 2);
 });
@@ -136,6 +150,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     active: true,
                     pinned: false
                 }, function(tab) {});
+                getUsername();
             } else {
                 login(currUserObj);
             }
@@ -242,9 +257,14 @@ chrome.webRequest.onHeadersReceived.addListener(function(details) {
                             userstatus: 1
                         }, currUserObj)
                     }, function() {});
-                    BGTool.saveUser({
-                        username: currUserObj.username,
-                        password: currUserObj.password
+                    getUserId(function(isGet, userId) {
+                        if (isGet) {
+                            BGTool.saveUser({
+                                username: currUserObj.username,
+                                password: currUserObj.password,
+                                userId:userId
+                            });
+                        }
                     });
                 }
                 currUserObj.status = 1;
@@ -276,8 +296,32 @@ function login(userObj) {
 
 function checkIslogin(callback) {
     $.get('http://172.18.1.48/seeyon/getAJAXMessageServlet', function(data) {
-        if (data.search("[LOGWARN]") < 0) {
+        if (/LOG/.test(data)) {
+            callback(false);
+        } else {
             callback(true);
+        }
+    });
+}
+
+function getUsername(callback) {
+    callback = callback || function() {};
+    $.get('http://172.18.1.48/seeyon/individual.do?method=managerFrame', function(data) {
+        var usernameReg = /individualName"\s*value="([^"]*)/;
+        if (usernameReg.test(data)) {
+            callback(true, RegExp.$1);
+        } else {
+            callback(false);
+        }
+    });
+}
+
+function getUserId(callback) {
+    callback = callback || function() {};
+    $.get('http://172.18.1.48/seeyon/main.do?method=personalInfo', function(data) {
+        var userIdReg = /memberId"\s*value="([^"]*)/;
+        if (userIdReg.test(data)) {
+            callback(true, RegExp.$1);
         } else {
             callback(false);
         }
@@ -311,7 +355,7 @@ chrome.notifications.onClicked.addListener(function(id) {
         active: true,
         pinned: false
     }, function(Cwindow) {
-    
+
     });
 });
 chrome.notifications.onButtonClicked.addListener(function(id) {
@@ -319,8 +363,7 @@ chrome.notifications.onButtonClicked.addListener(function(id) {
         url: 'http://172.18.24.64:8080/file/' + id,
         active: true,
         pinned: false
-    }, function(Cwindow) {
-    });
+    }, function(Cwindow) {});
 });
 /*BGTool.saveUser({
     username: "zhangyizhong",
